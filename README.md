@@ -1,0 +1,1 @@
+# Equipo22_CatalogIA_Frontend
