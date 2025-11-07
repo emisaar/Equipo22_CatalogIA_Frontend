@@ -1,46 +1,66 @@
-# Getting Started with Create React App
+# CatalogIA Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend de e-commerce desarrollado con React + TypeScript + Material UI.
 
-## Available Scripts
+## Cómo ejecutar el proyecto
 
-In the project directory, you can run:
+### 1. Instalar dependencias
+```bash
+yarn install
+```
 
-### `yarn start`
+### 2. Configurar variables de entorno
+Crear un archivo `.env` en la raíz del proyecto:
+```env
+REACT_APP_API_URL=http://localhost:8000
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 3. Iniciar en modo desarrollo
+```bash
+yarn start
+```
+La aplicación estará disponible en [http://localhost:3000](http://localhost:3000)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 4. Build para producción
+```bash
+yarn build
+```
 
-### `yarn test`
+## Estructura del proyecto
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+src/
+├── components/
+│   ├── layout/          # Header, Layout, Footer
+│   └── products/        # ProductCard
+├── pages/               # Home, Login, Register, Wishlist
+├── services/            # Clientes API (auth, products, wishlist)
+├── contexts/            # Context API (AuthContext, WishlistContext)
+├── types/               # Interfaces TypeScript
+└── theme.ts             # Configuración de Material UI
+```
 
-### `yarn build`
+## Tecnologías
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **React 19** + **TypeScript**
+- **Material UI 7** - Componentes UI
+- **React Router 7** - Navegación
+- **Axios** - Cliente HTTP
+- **Context API** - Gestión de estado
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Backend
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Este frontend se conecta con el backend FastAPI en `http://localhost:8000`
 
-### `yarn eject`
+Endpoints principales:
+- `/api/v1/users/` - Autenticación y usuarios
+- `/api/v1/products/` - Productos
+- `/api/v1/products/search/semantic` - Búsqueda semántica con IA
+- `/api/v1/wishlist/` - Lista de deseos
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Páginas
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- `/` - Home con productos destacados
+- `/login` - Inicio de sesión
+- `/register` - Registro de usuario
+- `/wishlist` - Lista de favoritos
