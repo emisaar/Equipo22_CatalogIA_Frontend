@@ -13,12 +13,6 @@ import { useWishlist } from '../contexts';
 export const Wishlist: React.FC = () => {
   const { wishlistItems, loading } = useWishlist();
 
-  const handleAddToCart = (productId: number) => {
-    // TODO: Implement add to cart functionality
-    console.log('Add to cart:', productId);
-    alert(`Producto ${productId} agregado al carrito (por implementar)`);
-  };
-
   return (
     <Container maxWidth="lg">
       <Box sx={{ mb: 4 }}>
@@ -49,7 +43,7 @@ export const Wishlist: React.FC = () => {
         <Grid container spacing={3}>
           {wishlistItems.map((item) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item.id}>
-              <ProductCard product={item.product} onAddToCart={handleAddToCart} />
+              <ProductCard product={item.product} />
             </Grid>
           ))}
         </Grid>

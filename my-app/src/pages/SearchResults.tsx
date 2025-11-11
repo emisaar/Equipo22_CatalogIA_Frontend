@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Container,
@@ -28,7 +28,7 @@ export const SearchResults: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('relevance');
 
-  const performSearch = async () => {
+  const performSearch = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -40,7 +40,7 @@ export const SearchResults: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [query]);
 
   useEffect(() => {
     if (query) {
@@ -48,12 +48,7 @@ export const SearchResults: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [query]);
-
-  const handleAddToCart = (productId: number) => {
-    console.log('Add to cart:', productId);
-    alert(`Producto ${productId} agregado al carrito (por implementar)`);
-  };
+  }, [query, performSearch]);
 
   // Sort products based on selected option
   const sortedProducts = useMemo(() => {
@@ -153,7 +148,7 @@ export const SearchResults: React.FC = () => {
         <Grid container spacing={3}>
           {sortedProducts.map((product) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product.id}>
-              <ProductCard product={product} onAddToCart={handleAddToCart} />
+              <ProductCard product={product} />
             </Grid>
           ))}
         </Grid>

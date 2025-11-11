@@ -28,7 +28,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             CatalogIA
           </Typography>
           <Typography variant="body2" color="grey.400">
-            Tu tienda de tecnología de confianza con los mejores productos del mercado.
+            Tu tienda de confianza.
           </Typography>
         </Container>
       </Box>

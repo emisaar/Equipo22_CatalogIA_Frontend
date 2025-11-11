@@ -10,22 +10,22 @@ import {
   Chip,
   Rating,
   Box,
-  LinearProgress,
   Tooltip,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
   Favorite as FavoriteIcon,
   FavoriteBorder as FavoriteBorderIcon,
-  ImageNotSupported as ImageIcon,
   TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { ProductResponse, ProductWithScore } from '../../types';
-import { useWishlist } from '../../contexts';
+import { ProductResponse, ProductWithScore, OrderCreate } from '../../types';
+import { useWishlist, useOrders, useAuth } from '../../contexts';
 
 interface ProductCardProps {
   product: ProductResponse | ProductWithScore;
-  onAddToCart?: (productId: number) => void;
 }
 
 // Helper function to get placeholder color - unified color
@@ -35,17 +35,21 @@ const getPlaceholderColor = (): string => {
 
 // Helper function to get similarity badge color
 const getSimilarityBadgeColor = (score: number): { color: string; label: string } => {
-  if (score >= 0.8) return { color: 'success', label: 'Alta relevancia' };
-  if (score >= 0.6) return { color: 'info', label: 'Buena relevancia' };
-  if (score >= 0.4) return { color: 'warning', label: 'Relevancia media' };
-  return { color: 'default', label: 'Baja relevancia' };
+  if (score >= 0.8) return { color: 'success', label: 'Excelente match' };
+  if (score >= 0.6) return { color: 'info', label: 'Buen match' };
+  if (score >= 0.4) return { color: 'warning', label: 'Match moderado' };
+  return { color: 'default', label: 'Match bajo' };
 };
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { createOrder } = useOrders();
   const inWishlist = isInWishlist(product.id);
   const [imageError, setImageError] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
 
   const price = parseFloat(product.price);
   const discount = parseFloat(product.discount);
@@ -56,9 +60,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
   // Check if product has similarity score (from semantic search)
   const similarityScore = 'similarity_score' in product ? product.similarity_score : undefined;
   const placeholderColor = getPlaceholderColor();
-
-  // Debug: Log to check if similarity_score is present
-  // console.log('Product:', product.id, 'Has similarity_score:', 'similarity_score' in product, 'Value:', similarityScore, 'Product:', product);
 
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -77,6 +78,60 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
     navigate(`/product/${product.id}`);
   };
 
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // Check if user is authenticated
+    if (!user) {
+      setSnackbar({
+        open: true,
+        message: 'Debes iniciar sesión para agregar productos al carrito',
+        severity: 'error',
+      });
+      setTimeout(() => navigate('/login'), 1500);
+      return;
+    }
+
+    // Check stock
+    if (product.stock === 0) {
+      setSnackbar({
+        open: true,
+        message: 'Producto sin stock',
+        severity: 'error',
+      });
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      const orderData: OrderCreate = {
+        product_id: product.id,
+        quantity: 1,
+      };
+
+      await createOrder(orderData);
+
+      setSnackbar({
+        open: true,
+        message: 'Producto agregado al carrito',
+        severity: 'success',
+      });
+    } catch (error: any) {
+      console.error('Error adding to cart:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.detail || 'Error al agregar producto al carrito',
+        severity: 'error',
+      });
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   return (
     <Card
       sx={{
@@ -93,9 +148,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
       }}
       onClick={handleCardClick}
     >
-      {/* Similarity Score Badge - For Demo */}
+      {/* Similarity Score Badge */}
       {similarityScore !== undefined && (
-        <Tooltip title={`Relevancia: ${(similarityScore * 100).toFixed(1)}%`} arrow placement="left">
+        <Tooltip title={`Match: ${(similarityScore * 100).toFixed(1)}%`} arrow placement="left">
           <Box sx={{ position: 'absolute', top: 8, left: 8, zIndex: 100 }}>
             <Chip
               icon={<TrendingUpIcon sx={{ fontSize: '0.9rem' }} />}
@@ -273,33 +328,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
             </Typography>
           </Box>
         </Box>
-
-        {/* Similarity Score Progress Bar - For Demo */}
-        {similarityScore !== undefined && (
-          <Box sx={{ mt: 1.5 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-              <Typography variant="caption" color="text.secondary" fontWeight="medium">
-                Relevancia de búsqueda
-              </Typography>
-              <Typography variant="caption" color="primary" fontWeight="bold">
-                {(similarityScore * 100).toFixed(1)}%
-              </Typography>
-            </Box>
-            <LinearProgress
-              variant="determinate"
-              value={similarityScore * 100}
-              sx={{
-                height: 6,
-                borderRadius: 1,
-                bgcolor: 'grey.200',
-                '& .MuiLinearProgress-bar': {
-                  borderRadius: 1,
-                  bgcolor: similarityScore >= 0.7 ? 'success.main' : similarityScore >= 0.5 ? 'info.main' : 'warning.main',
-                },
-              }}
-            />
-          </Box>
-        )}
       </CardContent>
 
       {/* Add to Cart Button */}
@@ -307,14 +335,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         <Button
           variant="contained"
           fullWidth
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddToCart?.(product.id);
-          }}
+          onClick={handleAddToCart}
+          disabled={addingToCart || product.stock === 0}
+          startIcon={addingToCart ? <CircularProgress size={20} /> : null}
         >
-          Agregar al Carrito
+          {addingToCart ? 'Agregando...' : product.stock === 0 ? 'Sin Stock' : 'Agregar al Carrito'}
         </Button>
       </CardActions>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };

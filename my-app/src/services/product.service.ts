@@ -1,5 +1,5 @@
 import apiClient from './api.client';
-import { ProductResponse, ProductList, SemanticSearchResult } from '../types';
+import { ProductResponse, ProductList, SemanticSearchResult, RecommendationResult } from '../types';
 
 export const productService = {
   // List products with optional filters
@@ -32,6 +32,20 @@ export const productService = {
     const response = await apiClient.get<SemanticSearchResult>(
       '/api/v1/products/search/semantic',
       { params }
+    );
+    return response.data;
+  },
+
+  // Get personalized recommendations based on user's wishlist
+  getPersonalizedRecommendations: async (params?: {
+    limit?: number;
+    strategy?: 'semantic' | 'category' | 'hybrid';
+    min_similarity?: number;
+    exclude_purchased?: boolean;
+  }): Promise<RecommendationResult> => {
+    const response = await apiClient.get<RecommendationResult>(
+      '/api/v1/recommendations/personalized',
+      { params: { limit: 8, strategy: 'semantic', ...params } }
     );
     return response.data;
   },

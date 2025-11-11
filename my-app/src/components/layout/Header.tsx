@@ -6,7 +6,6 @@ import {
   IconButton,
   Badge,
   InputBase,
-  Box,
   Menu,
   MenuItem,
 } from '@mui/material';
@@ -18,7 +17,7 @@ import {
 } from '@mui/icons-material';
 import { styled, alpha } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, useWishlist } from '../../contexts';
+import { useAuth, useWishlist, useOrders } from '../../contexts';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -62,6 +61,7 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { wishlistItems } = useWishlist();
+  const { pendingOrdersCount } = useOrders();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -124,9 +124,9 @@ export const Header: React.FC = () => {
           </Badge>
         </IconButton>
 
-        {/* Cart Icon */}
-        <IconButton color="inherit" onClick={() => navigate('/cart')}>
-          <Badge badgeContent={0} color="error">
+        {/* Cart Icon - Goes to Orders */}
+        <IconButton color="inherit" onClick={() => navigate('/orders')}>
+          <Badge badgeContent={pendingOrdersCount} color="error">
             <CartIcon />
           </Badge>
         </IconButton>

@@ -66,3 +66,12 @@ export interface SemanticSearchResult {
   limit: number;
   min_similarity?: number;
 }
+
+export interface RecommendationResult {
+  products: ProductWithScore[];
+  total: number;
+  limit: number;
+  strategy: string;
+  wishlist_size: number;
+  min_similarity?: number;
+}

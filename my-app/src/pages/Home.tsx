@@ -13,6 +13,7 @@ import {
 import Grid from '@mui/material/Grid';
 import { Sort as SortIcon } from '@mui/icons-material';
 import { ProductCard } from '../components/products/ProductCard';
+import { PersonalizedRecommendations } from '../components/products/PersonalizedRecommendations';
 import { ProductResponse } from '../types';
 import { productService } from '../services';
 
@@ -42,11 +43,6 @@ export const Home: React.FC = () => {
     }
   };
 
-  const handleAddToCart = (productId: number) => {
-    console.log('Add to cart:', productId);
-    alert(`Producto ${productId} agregado al carrito (por implementar)`);
-  };
-
   // Sort products based on selected option
   const sortedProducts = useMemo(() => {
     const productsCopy = [...products];
@@ -65,6 +61,9 @@ export const Home: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
+      {/* Personalized Recommendations Section */}
+      <PersonalizedRecommendations />
+
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
@@ -119,7 +118,7 @@ export const Home: React.FC = () => {
         <Grid container spacing={3}>
           {sortedProducts.map((product) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product.id}>
-              <ProductCard product={product} onAddToCart={handleAddToCart} />
+              <ProductCard product={product} />
             </Grid>
           ))}
         </Grid>
